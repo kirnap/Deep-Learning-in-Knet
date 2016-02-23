@@ -1,4 +1,6 @@
 include("rnn_model.jl")
+include("trainer.jl")
+
 
 function main()
   # Dataset preparation
