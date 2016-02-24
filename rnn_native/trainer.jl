@@ -1,7 +1,29 @@
 #=
-Contains the trainer and test functions for RNNs
+Contains the splitter, trainer and test functions for RNNs
 
 =#
+# Minibatching for sequential data
+# TODO Which one is efficient in splitting data?
+function seqbatch(seq, dict, batchsize)
+train_data = Any[]
+test_data = Any[]
+T = div(length(seq), batchsize) #find the number of batches
+  for t=1:T
+    d = zeros(Float32, length(dict), batchsize) # data skeleton in each batch
+    for b=1:batchsize
+      character_code = dict[seq[t + (b-1) * T]] # choose the desired char
+      d[character_code, b] = 1
+    end
+    if length(train_data) < 0.8 * T
+      push!(train_data, d)
+    else
+      push!(test_data, d)
+    end
+  end
+  return train_data, test_data
+end
+
+
 # Define the training for RNN
 function train(knetf, batcharray, loss; nforw=100, gclip=0)
   reset!(knetf)
