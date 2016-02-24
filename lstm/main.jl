@@ -14,13 +14,14 @@ function main()
   vocab_size = length(char2int)
 
   # Compile 3 layers LSTM
+  info("Compiling the model...")
   mlstm = compile(:charlm; nlayers=3, embedding=256, hidden=512, pdrop=0.2, nchar=vocab_size)
   setp(mlstm; lr=1.0)
 
   # Create train and test data
   trn, tst = seqbatch(text, char2int, batchsize)
 
-  println("Training starting...")
+  info("Training starting...")
   for epoch=1:20
     train(mlstm, trn, softloss; gclip=5)
     println("Epoch number: ", epoch, "||", "Train Error: ", test(mlstm, trn, softloss),"||",
