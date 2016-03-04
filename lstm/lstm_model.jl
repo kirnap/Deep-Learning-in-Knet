@@ -8,10 +8,10 @@ using Knet
 
 # Define the lstm model
 @knet function clsclstm(x; fbias=1, o...)
-  input = wbf2(x,h; o..., f:=sigm)
-  forget = wbf2(x,h; o...,f:=sigm, binit=Constant(fbias))
-  output = wbf2(x,h; o..., f:=sigm)
-  newmem = wbf2(x,h; o..., f:=tanh)
+  input = wbf2(x,h; o..., f=:sigm)
+  forget = wbf2(x,h; o...,f=:sigm, binit=Constant(fbias))
+  output = wbf2(x,h; o..., f=:sigm)
+  newmem = wbf2(x,h; o..., f=:tanh)
   cell = input .* newmem + forget .* cell
   h = output .* tanh(cell)
   return h

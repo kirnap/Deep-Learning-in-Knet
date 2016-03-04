@@ -14,12 +14,12 @@ function main()
 
   # Create medium lstm
   info("Compiling the model...")
-  mediumLSTM = compile(:genlstm; nlayer=2, hidden=650, pdrop=0.5, nchar=length(vocabulary))
+  mediumLSTM = compile(:genlstm; nlayer=2, embedding=512, hidden=650, pdrop=0.5, nchar=length(vocabulary))
   setp(mediumLSTM, lr=learning_rate)
 
   info("Training starting...")
   for epoch=1:39
-    learning_rate = epoch > 6 ? learning_rate - 0.5*learning_rate : learning_rate
+    learning_rate = epoch > 6 ? learning_rate = learning_rate / 1.2 : learning_rate
     train(mediumLSTM, trn, softloss;gclip=5)
   end
 end

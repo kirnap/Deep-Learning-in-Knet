@@ -1,7 +1,6 @@
 # Training script for multilayer lstm
 include("lstm_model.jl")
 # Here I import my predefined train and test functions included in the repo
-include("/Users/omer/Documents/Developer/kdeep/rnn_native/trainer.jl")
 
 function main()
 
@@ -15,7 +14,7 @@ function main()
 
   # Compile 3 layers LSTM
   info("Compiling the model...")
-  mlstm = compile(:charlm; nlayers=3, embedding=256, hidden=512, pdrop=0.2, nchar=vocab_size)
+  mlstm = compile(:charlm; nlayers=3, embedding=256, hidden=512, pdrop=0.2, nchar=vocab_size, o...)
   setp(mlstm; lr=1.0)
 
   # Create train and test data
@@ -23,9 +22,9 @@ function main()
 
   info("Training starting...")
   for epoch=1:20
-    train(mlstm, trn, softloss; gclip=5)
+   train(mlstm, trn, softloss; gclip=5)
     println("Epoch number: ", epoch, "||", "Train Error: ", test(mlstm, trn, softloss),"||",
-            "Test Error: ", test(mlstm, tst, softloss))
+           "Test Error: ", test(mlstm, tst, softloss))
   end
 end
 

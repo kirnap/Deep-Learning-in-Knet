@@ -6,7 +6,6 @@ T = div(length(seq), batchsize) #find the number of batches
     d = zeros(Float32, length(mdict), batchsize) # data skeleton in each batch
     for b=1:batchsize
       character_code = mdict[seq[t + (b-1) * T]] # choose the desired char
-      print(t)
       d[character_code, b] = 1
     end
     if length(train_data) < 0.8 * T
@@ -18,21 +17,21 @@ T = div(length(seq), batchsize) #find the number of batches
   return (train_data, test_data)
 end
 
-function train(knetf, batcharray, loss; nforw=35, gclip=5)
+function train(knetf, batcharray, loss; nforw=35, gclip=0)
   reset!(knetf)
   ystack = Any[]
   T = length(batcharray) - 1
   for t = 1:T
     x = batcharray[t] # set the time step dataset from batch array
     y = batcharray[t+1] # set the desired output for that time step
-    sforw(knetf,x; dropout=true)
+    sforw(knetf, x; dropout=true)
     push!(ystack, y)
     if (t % nforw == 0 || t==T)
       while !isempty(ystack)
         ygold = pop!(ystack)
         sback(knetf, ygold, loss)
       end
-      update!(knetf;gclip=gclip)
+      update!(knetf; gclip=gclip)
       reset!(knetf; keepstate=true)
     end
   end
