@@ -5,7 +5,7 @@ include("lstm_model.jl")
 function main()
 
   # Create the dataset
-  text = readall("../tinyshekaspare.txt")
+  text = readall("ptb.char.train.txt")
   char2int = Dict()
   batchsize = 128
 
