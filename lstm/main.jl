@@ -1,6 +1,7 @@
 # Training script for multilayer lstm
 include("lstm_model.jl")
-# Here I import my predefined train and test functions included in the repo
+
+include("trainer.jl")
 
 function main()
 
