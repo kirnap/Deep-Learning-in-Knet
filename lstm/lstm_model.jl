@@ -26,7 +26,6 @@ end
 
 @knet function charlm(x; nlayers=0, embedding=0, hidden=0, pdrop=0, nchar=0)
     a = wdot(x; out=embedding)
-
     c = repeat(x; frepeat=:lstmdrop, nrepeat=nlayers, hidden=hidden, pdrop=pdrop)
     return wbf(c; out=nchar, f=:soft)
 end
