@@ -24,21 +24,22 @@ function main()
   # Compile 3 layers LSTM
   info("Compiling the model...")
   mlstm = compile(:charlm; nlayers=2, embedding=256, hidden=512, pdrop=0.2, nchar=vocab_size)
-  setp(mlstm; lr=1.2) # set it to 1.2 to make it 1 in the 1st training case.
+  setp(mlstm; lr=learning_rate) # set it to 1.2 to make it 1 in the 1st training case.
 
   # Create train and valid data
   trn = seqbatch(text, char2int, batchsize)
-  valid = seqbatch(val_text, val_char2int, batchsize)
+  vld = seqbatch(val_text, val_char2int, batchsize)
 
 
   prev_tst_err = 0
   info("Training starting...")
   for epoch=1:101
     train(mlstm, trn, softloss; gclip=5)
-    tst_err = test(mlstm, tst, softloss)
+    tst_err = test(mlstm, vld, softloss)
     if tst_err > prev_tst_err
       learning_rate /= 1.2
     end
+    setp(mlstm; lr=learning_rate)
     println("Epoch number: $epoch ||", "Train Error: ", test(mlstm, trn, softloss),"||",
            "Test Error: $tst_err")
     prev_tst_err = tst_err

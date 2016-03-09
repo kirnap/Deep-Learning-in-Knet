@@ -4,13 +4,20 @@ include("lstm_model.jl")
 
 function main()
   # get ready the data
-  text = readall("ptb.train.txt")
-  words = split(text)
+  text = split(readall("ptb.train.txt"))
   vocabulary = Dict()
   batchsize = 20 # Batchsize given in the papers
-  for word in words; get!(vocabulary, word, 1+length(vocabulary));end
-  trn, tst = seqbatch(words, vocabulary, batchsize)
+  for word in text; get!(vocabulary, word, 1+length(vocabulary));end
   learning_rate = 1
+
+  # create validation set
+  val_text = split(readall("ptb.valid.txt"))
+  val_vocab = Dict();
+  for c in val_text; get!(val_vocab, c, 1+length(val_vocab)); end
+
+  # create train and validation data
+  trn = seqbatch(text, vocabulary, batchsize)
+  vld = seqbatch(val_text, val_vocab, batchsize)
 
   # Create medium lstm
   info("Compiling the model...")
@@ -19,8 +26,15 @@ function main()
 
   info("Training starting...")
   for epoch=1:39
-    learning_rate = epoch > 6 ? learning_rate = learning_rate / 1.2 : learning_rate
     train(mediumLSTM, trn, softloss;gclip=5)
+    tst_err = test(mediumLSTM, vld, softloss)
+    if tst_err > prev_tst_err
+      learning_rate /= 1.2
+    end
+    setp(mediumLSTM; lr=learning_rate)
+    println("Epoch number: $epoch ||", "Train Error: ", test(mediumLSTM, trn, softloss),"||",
+           "Test Error: $tst_err")
+    prev_tst_err = tst_err
   end
 end
 main()

@@ -1,6 +1,7 @@
 function seqbatch(seq, mdict, batchsize)
-train_data = Any[]
-test_data = Any[]
+
+data = Any[]
+
 T = div(length(seq), batchsize) #find the number of batches
   for t=1:T
     d = zeros(Float32, length(mdict), batchsize) # data skeleton in each batch
@@ -8,13 +9,9 @@ T = div(length(seq), batchsize) #find the number of batches
       character_code = mdict[seq[t + (b-1) * T]] # choose the desired char
       d[character_code, b] = 1
     end
-    if length(train_data) < 0.8 * T
-      push!(train_data, d)
-    else
-      push!(test_data, d)
-    end
+      push!(data, d)
   end
-  return (train_data, test_data)
+  return data
 end
 
 function train(knetf, batcharray, loss; nforw=35, gclip=0)
