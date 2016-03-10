@@ -1,15 +1,20 @@
-function seqbatch(seq, mdict, batchsize)
+function seqbatch(seq, mdict, batchsize; ret_sparse=true)
 
-data = Any[]
+  data = Any[]
 
-T = div(length(seq), batchsize) #find the number of batches
+  T = div(length(seq), batchsize) #find the number of batches
   for t=1:T
     d = zeros(Float32, length(mdict), batchsize) # data skeleton in each batch
     for b=1:batchsize
       character_code = mdict[seq[t + (b-1) * T]] # choose the desired char
       d[character_code, b] = 1
     end
-      push!(data, d)
+    if (ret_sparse)
+      d_sparse = sparse(d)
+    else
+      d_sparse = d
+    end
+    push!(data, d_sparse)
   end
   return data
 end
