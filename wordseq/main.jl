@@ -12,30 +12,35 @@ function main()
 
   # create validation set
   val_text = split(readall("ptb.valid.txt"))
-  val_vocab = Dict();
-  for c in val_text; get!(val_vocab, c, 1+length(val_vocab)); end
 
-  # create train and validation data
+  # train and validation data
   trn = seqbatch(text, vocabulary, batchsize)
   vld = seqbatch(val_text, vocabulary, batchsize)
 
   # Create medium lstm
-  info("Compiling the model...")
-  mediumLSTM = compile(:genlstm; nlayer=2, embedding=512, hidden=650, pdrop=0.5, nchar=length(vocabulary))
-  setp(mediumLSTM, lr=learning_rate)
+  # info("Compiling the model...")
+  # mediumLSTM = compile(:genlstm; nlayer=2, embedding=512, hidden=650, pdrop=0.5, nchar=length(vocabulary))
+  # setp(mediumLSTM, lr=learning_rate)
 
-  prev_tst_err = 0
+  # Create large lstm
+  info("Compiling the model...")
+  largeLSTM = compile(:genlstm; nlayer=2, embedding=2000, hidden=1500, pdrop=0.65, nchar=length(vocabulary))
+  setp(largeLSTM, lr=learning_rate)
+
+
+  # prev_tst_err = 10
   info("Training starting...")
-  for epoch=1:39
-    train(mediumLSTM, trn, softloss;gclip=5)
-    tst_err = test(mediumLSTM, vld, softloss)
-    if tst_err > prev_tst_err
-      learning_rate /= 1.2
-    end
-    setp(mediumLSTM; lr=learning_rate)
-    println("Epoch number: $epoch ||", "Train Error: ", test(mediumLSTM, trn, softloss),"||",
-           "Test Error: $tst_err")
-    prev_tst_err = tst_err
+   for epoch=1:55
+    train(largeLSTM, trn, softloss;gclip=10)
+    # tst_err = test(largeLSTM, vld, softloss)
+    # if tst_err > prev_tst_err
+    #   learning_rate /= 1.2
+    # end
+    learning_rate = epoch > 14 ? learning_rate/1.15 : learning_rate
+    setp(largeLSTM; lr=learning_rate)
+    println("Epoch number: $epoch ||", "Train Error: ", test(largeLSTM, trn, softloss),"||",
+           "Test Error: ", test(largeLSTM,vld, softloss))
+    # prev_tst_err = tst_err
   end
 end
 main()
